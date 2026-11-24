@@ -1,3 +1,6 @@
+# Library Management Systen
+## UML classDiagram
+```mermaid
 classDiagram
 
     %% ---------- Items ----------
@@ -180,3 +183,4 @@ classDiagram
 
     Library ..> LibraryException : throws
     Main ..> LibraryException : catches
+```
