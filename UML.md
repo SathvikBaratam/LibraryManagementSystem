@@ -1,5 +1,7 @@
 # Library Management Systen
+
 ## UML classDiagram
+
 ```mermaid
 classDiagram
 
@@ -18,7 +20,7 @@ classDiagram
         +getTitle() String
         +getType()* String
         +isBorrowable()* boolean
-        
+
     }
 
     class Book {
@@ -26,7 +28,7 @@ classDiagram
         +Book(String id, String title, String author)
         +getAuthor() String
         +getType() String
-        
+
         +getFinePerDay() int
     }
 
@@ -44,8 +46,8 @@ classDiagram
         +ReferenceBook(String id, String title, String author)
         +getAuthor() String
         +getType() String
-        
-        
+
+
     }
 
     LibraryItem <|-- Book
@@ -105,7 +107,7 @@ classDiagram
     Loan "*" --> "1" LibraryItem
     Loan "*" --> "1" Member
 
-    %% ---------- Library (coordinator) ----------
+    %% --------- Library (coordinator) ---------
     class Library {
         -int today
         -Map~String, LibraryItem~ items
@@ -143,7 +145,7 @@ classDiagram
     class Exception {
         +Exception(String message)
     }
-    
+
     class LibraryException {
         <<exception>>
         +LibraryException(String message)
