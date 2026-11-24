@@ -2,6 +2,7 @@ package core;
 
 import items.*;
 import members.*;
+// Loan
 
 public class Loan {
     private LibraryItem item;
