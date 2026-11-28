@@ -9,7 +9,7 @@ public class Library {
     private int today;
     private Map<String, LibraryItem> items;
     private Map<String, Member> members;
-    private Map<String, Loan> loans; // item ID to active loan
+    private Map<String, Loan> loans; // item ID to loan
     private Map<String, Queue<Member>> reservation; // item ID to members waiting, in FIFO order
 
     public Library() {
