@@ -1,15 +1,15 @@
-package core;
+package library.core;
 
 import java.util.*;
 
-import exceptions.BorrowLimitExceededException;
-import exceptions.ItemNotAvailableException;
-import exceptions.ItemNotFoundException;
-import exceptions.ItemNotOnLoanException;
-import exceptions.LibraryException;
-import exceptions.MemberNotFoundException;
-import items.*;
-import members.*;
+import library.exceptions.BorrowLimitExceededException;
+import library.exceptions.ItemNotAvailableException;
+import library.exceptions.ItemNotFoundException;
+import library.exceptions.ItemNotOnLoanException;
+import library.exceptions.LibraryException;
+import library.exceptions.MemberNotFoundException;
+import library.items.*;
+import library.members.*;
 
 public class Library {
     private int today;
@@ -68,9 +68,8 @@ public class Library {
         try {
             LibraryItem item = findItem(itemId);
             Member member = findMember(memberId);
-            if (item.isBorrowable()) {
-                throw new ItemNotAvailableException(itemId + " is on loan");
-            }
+            if (!item.isBorrowable())
+                throw new ItemNotAvailableException(itemId + " is not borrowable");
             if (loans.containsKey(itemId))
                 throw new ItemNotAvailableException(itemId + " is on loan");
             if (countLoans(memberId) >= member.getMaxItems()) {
@@ -100,7 +99,7 @@ public class Library {
             LibraryItem it = findItem(itemId);
             Loan loan = loans.remove(itemId);
             if (loan == null) {
-                String s = it.getId() + "is not on loan";
+                String s = it.getId() + " is not on loan";
                 throw new ItemNotOnLoanException(s);
             }
             int fine = loan.fine(today);
@@ -161,6 +160,17 @@ public class Library {
 
     public int getToday() {
         return today;
+    }
+
+    public String statusOf(LibraryItem item) {
+        if (!item.isBorrowable())
+            return "NOT_BORROWABLE";
+
+        Loan loan = loans.get(item.getId());
+        if (loan == null)
+            return "AVAILABLE";
+
+        return "ON_LOAN|" + loan.getMember().getId();
     }
 
 }

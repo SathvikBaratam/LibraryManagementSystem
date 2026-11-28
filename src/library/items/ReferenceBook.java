@@ -1,4 +1,4 @@
-package items;
+package library.items;
 
 public class ReferenceBook extends LibraryItem {
     private final String author;

@@ -1,4 +1,4 @@
-package members;
+package library.members;
 
 public abstract class Member {
     private String id;

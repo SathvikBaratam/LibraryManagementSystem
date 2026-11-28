@@ -1,4 +1,4 @@
-package exceptions;
+package library.exceptions;
 
 public class ReservationNotAllowedException extends LibraryException {
     public ReservationNotAllowedException(String message) {

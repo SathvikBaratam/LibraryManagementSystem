@@ -1,7 +1,7 @@
-package core;
+package library.core;
 
-import items.*;
-import members.*;
+import library.items.*;
+import library.members.*;
 // Loan
 
 public class Loan {
@@ -14,10 +14,11 @@ public class Loan {
         this.item = item;
         this.member = member;
         this.borrowedDay = borrowedDay;
+        this.dueDay = borrowedDay + member.getLoanPeriod();
     }
 
     public int getDueDay() {
-        return borrowedDay + member.getLoanPeriod();
+        return dueDay;
     }
 
     public LibraryItem getItem() {

@@ -1,4 +1,4 @@
-package items;
+package library.items;
 
 public class Book extends LibraryItem implements Borrowable {
     private final String author;

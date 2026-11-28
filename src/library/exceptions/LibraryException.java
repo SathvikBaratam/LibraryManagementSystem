@@ -1,4 +1,4 @@
-package exceptions;
+package library.exceptions;
 
 public class LibraryException extends Exception {
     public LibraryException(String message) {

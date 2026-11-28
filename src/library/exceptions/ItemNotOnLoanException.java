@@ -1,4 +1,4 @@
-package exceptions;
+package library.exceptions;
 
 public class ItemNotOnLoanException extends LibraryException {
     public ItemNotOnLoanException(String message) {

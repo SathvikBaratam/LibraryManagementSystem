@@ -1,4 +1,4 @@
-package exceptions;
+package library.exceptions;
 
 public class BorrowLimitExceededException extends LibraryException {
     public BorrowLimitExceededException(String message) {

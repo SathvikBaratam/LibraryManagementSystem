@@ -1,4 +1,4 @@
-package items;
+package library.items;
 
 public abstract class LibraryItem {
     private String id;

@@ -1,7 +1,7 @@
-package members;
+package library.members;
 
 public class Student extends Member {
-    Student(String id, String name) {
+    public Student(String id, String name) {
         super(id, name);
     }
 

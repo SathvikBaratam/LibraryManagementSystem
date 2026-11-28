@@ -1,4 +1,4 @@
-package items;
+package library.items;
 
 public class Magazine extends LibraryItem implements Borrowable {
     private final String issue;

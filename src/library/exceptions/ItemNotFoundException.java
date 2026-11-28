@@ -1,4 +1,4 @@
-package exceptions;
+package library.exceptions;
 
 public class ItemNotFoundException extends LibraryException {
     public ItemNotFoundException(String message) {
