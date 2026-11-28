@@ -60,6 +60,10 @@ public class Main {
             case "BORROW":
                 System.out.println("OK due on day " + lib.borrow(f[1], f[2]));
                 break;
+            case "RESERVE":
+                lib.reserve(f[1], f[2]);
+                System.out.println("OK");
+                break;
 
             case "RETURN":
                 System.out.println(lib.returnItem(f[1]));

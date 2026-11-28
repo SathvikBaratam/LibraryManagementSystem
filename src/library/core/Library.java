@@ -1,13 +1,7 @@
 package library.core;
 
 import java.util.*;
-
-import library.exceptions.BorrowLimitExceededException;
-import library.exceptions.ItemNotAvailableException;
-import library.exceptions.ItemNotFoundException;
-import library.exceptions.ItemNotOnLoanException;
-import library.exceptions.LibraryException;
-import library.exceptions.MemberNotFoundException;
+import library.exceptions.*;
 import library.items.*;
 import library.members.*;
 
@@ -15,8 +9,8 @@ public class Library {
     private int today;
     private Map<String, LibraryItem> items;
     private Map<String, Member> members;
-    private Map<String, Loan> loans;
-    private Map<String, Queue<Member>> reservation;
+    private Map<String, Loan> loans; // item ID to active loan
+    private Map<String, Queue<Member>> reservation; // item ID to members waiting, in FIFO order
 
     public Library() {
         items = new HashMap<>();
@@ -65,51 +59,61 @@ public class Library {
     }
 
     public int borrow(String memberId, String itemId) throws LibraryException {
-        try {
-            LibraryItem item = findItem(itemId);
-            Member member = findMember(memberId);
-            if (!item.isBorrowable())
-                throw new ItemNotAvailableException(itemId + " is not borrowable");
-            if (loans.containsKey(itemId))
-                throw new ItemNotAvailableException(itemId + " is on loan");
-            if (countLoans(memberId) >= member.getMaxItems()) {
-                String s = memberId + " has reached the limit of " + member.getMaxItems();
-                throw new BorrowLimitExceededException(s);
-            }
+        LibraryItem item = findItem(itemId);
+        Member member = findMember(memberId);
 
-            Loan ln = new Loan(item, member, today);
-            loans.put(item.getId(), ln);
-            int due = today + member.getLoanPeriod();
-            return due;
-
-        } catch (MemberNotFoundException e) {
-            throw e;
-        } catch (ItemNotFoundException e) {
-            throw e;
-        } catch (BorrowLimitExceededException e) {
-            throw e;
-        } catch (ItemNotAvailableException e) {
-            throw e;
+        if (!item.isBorrowable())
+            throw new ItemNotAvailableException(itemId + " is not borrowable");
+        if (loans.containsKey(itemId))
+            throw new ItemNotAvailableException(itemId + " is on loan");
+        if (countLoans(memberId) >= member.getMaxItems()) {
+            String message = memberId + " has reached the limit of " + member.getMaxItems();
+            throw new BorrowLimitExceededException(message);
         }
 
+        // A waiting member has priority when the item becomes available.
+        Queue<Member> waiting = reservation.get(itemId);
+        if (waiting != null && !waiting.isEmpty()
+                && !waiting.peek().getId().equals(memberId)) {
+            throw new ItemNotAvailableException(itemId + " is reserved for " + waiting.peek().getId());
+        }
+
+        Loan loan = new Loan(item, member, today);
+        loans.put(itemId, loan);
+        if (waiting != null && !waiting.isEmpty()) {
+            waiting.remove();
+            if (waiting.isEmpty())
+                reservation.remove(itemId);
+        }
+        return loan.getDueDay();
+    }
+
+    public void reserve(String memberId, String itemId) throws LibraryException {
+        LibraryItem item = findItem(itemId);
+        Member member = findMember(memberId);
+
+        if (!item.isBorrowable())
+            throw new ReservationNotAllowedException(itemId + " cannot be reserved");
+        if (!loans.containsKey(itemId))
+            throw new ReservationNotAllowedException(itemId + " is available to borrow");
+        if (loans.get(itemId).getMember().getId().equals(memberId))
+            throw new ReservationNotAllowedException(memberId + " already has " + itemId);
+
+        Queue<Member> waiting = reservation.computeIfAbsent(itemId, key -> new ArrayDeque<>());
+        boolean alreadyWaiting = waiting.stream().anyMatch(m -> m.getId().equals(memberId));
+        if (alreadyWaiting)
+            throw new ReservationNotAllowedException(memberId + " already reserved " + itemId);
+        waiting.add(member);
     }
 
     public String returnItem(String itemId) throws LibraryException {
-        try {
-            LibraryItem it = findItem(itemId);
-            Loan loan = loans.remove(itemId);
-            if (loan == null) {
-                String s = it.getId() + " is not on loan";
-                throw new ItemNotOnLoanException(s);
-            }
-            int fine = loan.fine(today);
-            return "OK fine " + fine;
+        LibraryItem item = findItem(itemId);
+        Loan loan = loans.remove(itemId);
+        if (loan == null)
+            throw new ItemNotOnLoanException(item.getId() + " is not on loan");
 
-        } catch (ItemNotFoundException e) {
-            throw e;
-        } catch (ItemNotOnLoanException e) {
-            throw e;
-        }
+        // Keep the reservation queue; borrow() gives its first member priority.
+        return "OK fine " + loan.fine(today);
     }
 
     public List<Loan> overdue() {
